@@ -82,4 +82,6 @@ down-solr:
 load-solr-index:
 	docker cp ./solr-index/data \
 		${NDM_SOLR_CONTAINER}:/opt/solr/server/solr/stcndm/
+	docker exec -it --user=root ${NDM_SOLR_CONTAINER} chown \
+		-R solr:solr /opt/solr/server/solr/stcndm/data
 	docker-compose --file=${NDM_SOLR_COMPOSE} restart
