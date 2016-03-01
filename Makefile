@@ -33,6 +33,8 @@ init-db-postgres:
 load-postgres-data:
 	docker exec -it --user=postgres ${NDM_POSTGRES_CONTAINER} bash -c \
 		'psql "$$CKAN_DB" < /tmp/postgres-data/stcndm_ckan.sql'
+	docker exec -it --user=postgres ${NDM_POSTGRES_CONTAINER} bash -c \
+		'psql "$$CKAN_DATASTORE_DB" < /tmp/postgres-data/stcndm_ckan_datastore.sql'
 
 set-permissions-postgress:
 	. ${NDM_VENV_PATH}/bin/activate && \
