@@ -38,7 +38,8 @@ load-postgres-data:
 
 set-permissions-postgress:
 	. ${NDM_VENV_PATH}/bin/activate && \
-	paster --plugin=ckan datastore set-permissions -c ${NDM_CONFIG}
+	paster --plugin=ckan datastore set-permissions -c ${NDM_CONFIG} | \
+	sudo -u postgres psql -h localhost -p 5433
 
 up-postgres:
 	docker-compose --file=${NDM_POSTGRES_COMPOSE} up -d
