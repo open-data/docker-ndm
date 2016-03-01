@@ -7,14 +7,6 @@ export NDM_POSTGRES_CONTAINER=dockerndm_postgres_1
 export NDM_CONFIG = ../development.ini
 export NDM_VENV_PATH = ../venv
 
-export NDM_CKAN_POSTGRES_USER=stcndm_usr
-export NDM_CKAN_POSTGRES_PWD=pass
-export NDM_CKAN_DATASTORE_POSTGRES_USER=datastore_stcndm_usr
-export NDM_CKAN_DATASTORE_POSTGRES_PWD=pass
-export NDM_CKAN_DB=stcndm_ckan
-export NDM_CKAN_DATASTORE_DB=stcndm_ckan_datastore
-
-
 default: up
 
 init: build init-db-postgres set-permissions-postgress load-postgres-data load-solr-index
