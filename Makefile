@@ -11,7 +11,7 @@ export VENV_PATH = ../venv
 
 default: up
 
-init: build init-db-postgres set-permissions-postgress load-postgres-data load-solr-index
+init: build init-postgres set-permissions-postgress load-postgres-data load-solr-index
 
 build: build-postgres build-solr
 
@@ -28,7 +28,7 @@ build-postgres: up-postgres
 
 rebuild-postgres: down-postgres build-postgres
 
-init-db-postgres:
+init-postgres:
 	. ${VENV_PATH}/bin/activate && \
 		paster --plugin=ckan db init -c ${CONFIG}
 
@@ -40,8 +40,8 @@ load-postgres-data:
 
 set-permissions-postgress:
 	. ${VENV_PATH}/bin/activate && \
-	paster --plugin=ckan datastore set-permissions -c ${CONFIG} | \
-	sudo -u postgres psql -h localhost -p 5433
+		paster --plugin=ckan datastore set-permissions -c ${CONFIG} | cat | \
+		docker exec -i --user=postgres ${POSTGRES_CONTAINER} psql
 
 up-postgres:
 	docker-compose -f ${POSTGRES_COMPOSE} -p ${PROJECT_NAME} up -d
