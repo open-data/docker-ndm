@@ -1,2 +1,4 @@
 solr-index/data/
 postgres-data/*.sql
+
+.DS_Store
