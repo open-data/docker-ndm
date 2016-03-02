@@ -1,11 +1,13 @@
 #!/bin/sh
-export NDM_SOLR_COMPOSE=docker-compose.solr.yml
-export NDM_SOLR_CONTAINER=dockerndm_solr_1
-export NDM_POSTGRES_COMPOSE=docker-compose.postgres.yml
-export NDM_POSTGRES_CONTAINER=dockerndm_postgres_1
+export PROJECT_NAME=stcndm
 
-export NDM_CONFIG = ../development.ini
-export NDM_VENV_PATH = ../venv
+export SOLR_COMPOSE=docker-compose.solr.yml
+export SOLR_CONTAINER=${PROJECT_NAME}_solr_1
+export POSTGRES_COMPOSE=docker-compose.postgres.yml
+export POSTGRES_CONTAINER=${PROJECT_NAME}_postgres_1
+
+export CONFIG = ../development.ini
+export VENV_PATH = ../venv
 
 default: up
 
@@ -27,62 +29,62 @@ build-postgres: up-postgres
 rebuild-postgres: down-postgres build-postgres
 
 init-db-postgres:
-	. ${NDM_VENV_PATH}/bin/activate && \
-		paster --plugin=ckan db init -c ${NDM_CONFIG}
+	. ${VENV_PATH}/bin/activate && \
+		paster --plugin=ckan db init -c ${CONFIG}
 
 load-postgres-data:
-	docker exec -it --user=postgres ${NDM_POSTGRES_CONTAINER} bash -c \
+	docker exec -it --user=postgres ${POSTGRES_CONTAINER} bash -c \
 		'psql "$$CKAN_DB" < /tmp/postgres-data/stcndm_ckan.sql'
-	docker exec -it --user=postgres ${NDM_POSTGRES_CONTAINER} bash -c \
+	docker exec -it --user=postgres ${POSTGRES_CONTAINER} bash -c \
 		'psql "$$CKAN_DATASTORE_DB" < /tmp/postgres-data/stcndm_ckan_datastore.sql'
 
 set-permissions-postgress:
-	. ${NDM_VENV_PATH}/bin/activate && \
-	paster --plugin=ckan datastore set-permissions -c ${NDM_CONFIG} | \
+	. ${VENV_PATH}/bin/activate && \
+	paster --plugin=ckan datastore set-permissions -c ${CONFIG} | \
 	sudo -u postgres psql -h localhost -p 5433
 
 up-postgres:
-	docker-compose --file=${NDM_POSTGRES_COMPOSE} up -d
+	docker-compose -f ${POSTGRES_COMPOSE} -p ${PROJECT_NAME} up -d
 
 stop-postgres:
-	docker-compose --file=${NDM_POSTGRES_COMPOSE} stop
+	docker-compose -f ${POSTGRES_COMPOSE} -p ${PROJECT_NAME} stop
 
 down-postgres:
-	docker-compose --file=${NDM_POSTGRES_COMPOSE} down
+	docker-compose -f ${POSTGRES_COMPOSE} -p ${PROJECT_NAME} down
 
 # Solr Config
 build-solr: up-solr
-	docker exec -it --user=solr ${NDM_SOLR_CONTAINER} mkdir	\
+	docker exec -it --user=solr ${SOLR_CONTAINER} mkdir	\
 		/opt/solr/server/solr/configsets/stcndm
-	docker exec -it --user=solr ${NDM_SOLR_CONTAINER} cp -R \
+	docker exec -it --user=solr ${SOLR_CONTAINER} cp -R \
 	 	/media/stcnmd_solr_conf \
 	 	/opt/solr/server/solr/configsets/stcndm/conf/
-	docker exec -it --user=solr ${NDM_SOLR_CONTAINER} cp -R \
+	docker exec -it --user=solr ${SOLR_CONTAINER} cp -R \
 		/opt/solr/server/solr/configsets/data_driven_schema_configs/conf/lang \
 		/opt/solr/server/solr/configsets/stcndm/conf/lang
-	docker exec -it --user=solr ${NDM_SOLR_CONTAINER} cp \
+	docker exec -it --user=solr ${SOLR_CONTAINER} cp \
 		/opt/solr/server/solr/configsets/stcndm/conf/schema-dev.xml \
 		/opt/solr/server/solr/configsets/stcndm/conf/schema.xml
-	docker exec -it --user=solr ${NDM_SOLR_CONTAINER} cp \
+	docker exec -it --user=solr ${SOLR_CONTAINER} cp \
 		/opt/solr/server/solr/configsets/stcndm/conf/solrconfig-dev.xml \
 		/opt/solr/server/solr/configsets/stcndm/conf/solrconfig.xml
-	docker exec -it --user=solr ${NDM_SOLR_CONTAINER} bin/solr create \
+	docker exec -it --user=solr ${SOLR_CONTAINER} bin/solr create \
 		-c stcndm -d /opt/solr/server/solr/configsets/stcndm/conf
 
 rebuild-solr: down-solr build-solr
 
 up-solr:
-	docker-compose --file=${NDM_SOLR_COMPOSE} up -d
+	docker-compose -f ${SOLR_COMPOSE} -p ${PROJECT_NAME}  up -d
 
 stop-solr:
-	docker-compose --file=${NDM_SOLR_COMPOSE} stop
+	docker-compose -f ${SOLR_COMPOSE} -p ${PROJECT_NAME} stop
 
 down-solr:
-	docker-compose --file=${NDM_SOLR_COMPOSE} down
+	docker-compose -f ${SOLR_COMPOSE} -p ${PROJECT_NAME} down
 
 load-solr-index:
 	docker cp ./solr-index/data \
-		${NDM_SOLR_CONTAINER}:/opt/solr/server/solr/stcndm/
-	docker exec -it --user=root ${NDM_SOLR_CONTAINER} chown \
+		${SOLR_CONTAINER}:/opt/solr/server/solr/stcndm/
+	docker exec -it --user=root ${SOLR_CONTAINER} chown \
 		-R solr:solr /opt/solr/server/solr/stcndm/data
-	docker-compose --file=${NDM_SOLR_COMPOSE} restart
+	docker-compose -f ${SOLR_COMPOSE} -p ${PROJECT_NAME} restart
