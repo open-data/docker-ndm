@@ -33,12 +33,6 @@ init-postgres:
 	. ${VENV_PATH}/bin/activate && \
 		paster --plugin=ckan db init -c ${CONFIG}
 
-load-postgres-data:
-	docker exec -it --user=postgres ${POSTGRES_CONTAINER} bash -c \
-		'psql "$$CKAN_POSTGRES_DB" < /tmp/postgres-data/stcndm_ckan.sql'
-	docker exec -it --user=postgres ${POSTGRES_CONTAINER} bash -c \
-		'psql "$$CKAN_DATASTORE_POSTGRES_DB" < /tmp/postgres-data/stcndm_ckan_datastore.sql'
-
 set-permissions-postgress:
 	. ${VENV_PATH}/bin/activate && \
 		paster --plugin=ckan datastore set-permissions -c ${CONFIG} | cat | \
@@ -52,6 +46,14 @@ stop-postgres:
 
 down-postgres:
 	docker-compose -f ${POSTGRES_COMPOSE} -p ${PROJECT_NAME} down
+
+load-postgres-data:
+	cat ./postgres-data/stcndm_ckan.sql | \
+		docker exec -i --user=postgres ${POSTGRES_CONTAINER} bash -c \
+		'psql "$$CKAN_POSTGRES_DB"'
+	cat ./postgres-data/stcndm_ckan_datastore.sql | \
+		docker exec -i --user=postgres ${POSTGRES_CONTAINER} bash -c \
+		'psql "$$CKAN_DATASTORE_POSTGRES_DB"'
 
 # Solr Config
 build-solr: up-solr
