@@ -3,7 +3,9 @@ export PROJECT_NAME=stcndm
 
 export SOLR_COMPOSE=docker-compose.solr.yml
 export SOLR_CONTAINER=${PROJECT_NAME}_solr_1
+
 export SOL_CORE_NAME=${PROJECT_NAME}
+
 export POSTGRES_COMPOSE=docker-compose.postgres.yml
 export POSTGRES_CONTAINER=${PROJECT_NAME}_postgres_1
 
@@ -77,7 +79,7 @@ build-solr: up-solr
 rebuild-solr: down-solr build-solr
 
 up-solr:
-	docker-compose -f ${SOLR_COMPOSE} -p ${PROJECT_NAME}  up -d
+	docker-compose -f ${SOLR_COMPOSE} -p ${PROJECT_NAME} up -d
 
 stop-solr:
 	docker-compose -f ${SOLR_COMPOSE} -p ${PROJECT_NAME} stop
