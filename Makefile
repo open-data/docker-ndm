@@ -3,9 +3,6 @@ export PROJECT_NAME=stcndm
 
 export SOLR_COMPOSE=docker-compose.solr.yml
 export SOLR_CONTAINER=${PROJECT_NAME}_solr_1
-
-export SOL_CORE_NAME=${PROJECT_NAME}
-
 export POSTGRES_COMPOSE=docker-compose.postgres.yml
 export POSTGRES_CONTAINER=${PROJECT_NAME}_postgres_1
 
@@ -59,22 +56,8 @@ load-postgres-data:
 
 # Solr Config
 build-solr: up-solr
-	docker exec -it --user=solr ${SOLR_CONTAINER} mkdir	\
-		/opt/solr/server/solr/configsets/stcndm
-	docker exec -it --user=solr ${SOLR_CONTAINER} cp -R \
-	 	/media/stcnmd_solr_conf \
-	 	/opt/solr/server/solr/configsets/stcndm/conf/
-	docker exec -it --user=solr ${SOLR_CONTAINER} cp -R \
-		/opt/solr/server/solr/configsets/data_driven_schema_configs/conf/lang \
-		/opt/solr/server/solr/configsets/stcndm/conf/lang
-	docker exec -it --user=solr ${SOLR_CONTAINER} cp \
-		/opt/solr/server/solr/configsets/stcndm/conf/schema-dev.xml \
-		/opt/solr/server/solr/configsets/stcndm/conf/schema.xml
-	docker exec -it --user=solr ${SOLR_CONTAINER} cp \
-		/opt/solr/server/solr/configsets/stcndm/conf/solrconfig-dev.xml \
-		/opt/solr/server/solr/configsets/stcndm/conf/solrconfig.xml
-	docker exec -it --user=solr ${SOLR_CONTAINER} bin/solr create \
-		-c ${SOL_CORE_NAME} -d /opt/solr/server/solr/configsets/stcndm/conf
+	docker exec -it --user=solr ${SOLR_CONTAINER} \
+		/docker-entrypoint-initsolr.d/create-core.sh
 
 rebuild-solr: down-solr build-solr
 

@@ -3,4 +3,7 @@ solr:
     ports:
         - "8984:8983"
     volumes:
-        - ../ckanext-stcndm/conf/solr:/media/stcnmd_solr_conf
+        - ../ckanext-stcndm/conf/solr:/media/solr_conf
+        - ./solr-scripts:/docker-entrypoint-initsolr.d
+    environment:
+        - CKAN_SOLR_CORE=stcndm
