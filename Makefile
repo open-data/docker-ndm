@@ -56,6 +56,9 @@ load-postgres-data:
 
 # Solr Config
 build-solr: up-solr
+	while ! docker logs ${SOLR_CONTAINER} | grep "Started"; \
+			do sleep 0.1; \
+		done
 	docker exec -it --user=solr ${SOLR_CONTAINER} \
 		/docker-entrypoint-initsolr.d/create-core.sh
 
